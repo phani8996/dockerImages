@@ -1,4 +1,9 @@
-FROM python:3.5.9-alpine
+FROM --platform=$BUILDPLATFORM python:3.5.9-alpine
+
+# Platform args
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM"
 
 # install jupyter and its dependencies
 RUN apk add build-base libzmq musl-dev  zeromq-dev
