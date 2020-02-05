@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM python:3.5.9-alpine
+FROM python:3.5.9-alpine
 
 # Platform args
 ARG TARGETPLATFORM

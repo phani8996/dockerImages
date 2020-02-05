@@ -1,0 +1,45 @@
+version: "3"
+
+volumes:
+  pihole_config:
+  dnsmasq_config:
+  dnscrypt_config:
+
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp"
+      - "9090:80/tcp"
+      - "443:443/tcp"
+    environment:
+      TZ: 'Asia/Kolkata'
+      WEBPASSWORD: 'HakunaMatata'
+      #WEB_PORT: 9090
+      DNS1: 127.0.0.1#5053
+      DNS2: 127.0.0.1#5053
+    # Volumes store your data between container upgrades
+    volumes:
+      - 'pihole_config:/etc/pihole/'
+      - 'dnsmasq_config:/etc/dnsmasq.d/'
+    dns:
+      - 127.0.0.1
+      - 1.1.1.1
+    restart: unless-stopped
+  dnscrypt-proxy:
+    container_name: dnscrypt-proxy
+    image: phani8996/dnscrypt-proxy-rpi:latest
+    volumes:
+      - 'dnscrypt_config:/config'
+    ports:
+      - '5053:5053/udp'
+    restart: unless-stopped
+  jupyter:
+    container_name: jupyter
+    image: phani8996/jupyter-rpi:latest
+    ports:
+      - "8888:8888/tcp"
+    restart: unless-stopped
