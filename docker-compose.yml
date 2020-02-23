@@ -4,8 +4,6 @@ volumes:
   pihole_config:
   dnsmasq_config:
   dnscrypt_config:
-#  traefik_toml: traefik/traefik.toml
-#  acme_json: traefik/acme.json
 networks:
   traefik-backend:
     external:
@@ -14,8 +12,8 @@ services:
   traefik:
     container_name: traefik
     image: traefik:1.7.2-alpine
-    command:
-      - --debug
+#    command:
+#      - --debug
     volumes:
       - "$PWD/traefik/traefik.toml:/traefik.toml"
       - "$PWD/traefik/acme.json:/acme.json"
@@ -37,8 +35,6 @@ services:
       - "53:53/tcp"
       - "53:53/udp"
       - "67:67/udp"
-#      - "9090:80/tcp"
-#      - "443:443/tcp"
     environment:
       ServerIP: 192.168.0.149
       TZ: 'Asia/Kolkata'
@@ -54,13 +50,8 @@ services:
       - 127.0.0.1
       - 1.1.1.1
     labels:
-#      - traefik.http.middlewares.pihole.stripprefix.prefixes=/pihole
-#      - traefik.http.middlewares.pihole.stripprefix.forceslash=false
-#      - traefik.http.middlewares.pihole.replacepathregex.regex=^/(.*)
-#      - traefik.http.middlewares.pihole.replacepathregex.replacement=/admin/$$1
-#      - traefik.http.middlewares.pihole.addprefix.prefix=/admin
       - traefik.backend=pihole
-      - traefik.frontend.rule=Host:192.168.0.149;PathPrefix:/pihole/;ReplacePathRegex:^/pihole/(.*) /admin/$$1
+      - traefik.frontend.rule=PathPrefix:/pihole/;ReplacePathRegex:^/pihole/(.*) /admin/$$1
       - traefik.port=80
     networks:
       - traefik-backend
@@ -80,14 +71,9 @@ services:
   jupyter:
     container_name: jupyter
     image: phani8996/jupyter-rpi:latest
-#    ports:
-#      - "8888:8888/tcp"
     labels:
       - traefik.backend=jupyter
-#      - traefik.frontend.rule=Host:jupyter.rpi.lan
-#      - traefik.http.middlewares.jupyter.replacepathregex.regex=^/(.*)
-#      - traefik.http.middlewares.jupyter.replacepathregex.replacement=/jupyter/$$1
-      - traefik.frontend.rule=Host:192.168.0.149;PathPrefix:/jupyter/
+      - traefik.frontend.rule=PathPrefix:/jupyter/
       - traefik.port=8888
     networks:
       - traefik-backend
