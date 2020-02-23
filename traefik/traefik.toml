@@ -1,0 +1,35 @@
+defaultEntryPoints = ["http"]
+
+[entryPoints]
+  [entryPoints.dashboard]
+    address = ":7070"
+    [entryPoints.dashboard.auth]
+      [entryPoints.dashboard.auth.basic]
+        users = ["admin:$apr1$2FPUU26h$S9Sf6Y5FcLj825wJMFaEM0"]
+  [entryPoints.http]
+    address = ":80"
+    [entryPoints.http.auth]
+      [entryPoints.http.auth.basic]
+        users = ["admin:$apr1$2FPUU26h$S9Sf6Y5FcLj825wJMFaEM0"]
+#      [entryPoints.http.redirect]
+#        entryPoint = "https"
+#  [entryPoints.https]
+#    address = ":443"
+#      [entryPoints.https.tls]
+
+[api]
+entrypoint="dashboard"
+debug=true
+
+#[acme]
+#email = "phani8996@gmail.com"
+#storage = "acme.json"
+#entryPoint = "https"
+#onHostRule = true
+#  [acme.httpChallenge]
+#  entryPoint = "http"
+
+[docker]
+domain = "192.168.0.149"
+watch = true
+network = "traefik-backend"
