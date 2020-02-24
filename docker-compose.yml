@@ -5,10 +5,17 @@ volumes:
   dnsmasq_config:
   dnscrypt_config:
 networks:
-  traefik-backend:
-    external:
-      name: traefik-backend
+  traefik-frontend:
 services:
+  ngrok:
+    container_name: ngrok
+    image: phani8996/ngrok:latest
+    #build: ngrok/
+    network_mode: host
+    ports:
+      - "4040:4040/tcp"
+    labels:
+      - traefik.enable=false
   traefik:
     container_name: traefik
     image: traefik:1.7.2-alpine
@@ -24,9 +31,9 @@ services:
     labels:
       - traefik.backend=traefik
       - traefik.port=7070
-      - traefik.frontend.rule=Host:192.168.0.149
+      - traefik.frontend.rule=HostRegexp:192.168.0.149,*.ngrok.io
     networks:
-      - traefik-backend
+      - traefik-frontend
     restart: unless-stopped
   pihole:
     container_name: pihole
@@ -54,7 +61,7 @@ services:
       - traefik.frontend.rule=PathPrefix:/pihole/;ReplacePathRegex:^/pihole/(.*) /admin/$$1
       - traefik.port=80
     networks:
-      - traefik-backend
+      - traefik-frontend
     restart: unless-stopped
   dnscrypt-proxy:
     container_name: dnscrypt-proxy
@@ -66,7 +73,7 @@ services:
     labels:
       - traefik.enable=false
     networks:
-      - traefik-backend
+      - traefik-frontend
     restart: unless-stopped
   jupyter:
     container_name: jupyter
@@ -76,5 +83,5 @@ services:
       - traefik.frontend.rule=PathPrefix:/jupyter/
       - traefik.port=8888
     networks:
-      - traefik-backend
+      - traefik-frontend
     restart: unless-stopped
