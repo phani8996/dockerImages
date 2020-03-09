@@ -16,10 +16,13 @@ services:
       - traefik.backend=ngrok
       - traefik.port=4040
       - traefik.frontend.rule=PathPrefix:/ngrok/;ReplacePathRegex:^/ngrok/(.*) /$$1
+    ports:
+      - "4040:4040/tcp"
     restart: unless-stopped
   traefik:
     container_name: traefik
-    image: traefik:1.7.2-alpine
+#    image: traefik:1.7.2-alpine
+    build: traefik/
 #    command:
 #      - --debug
     volumes:
@@ -32,7 +35,7 @@ services:
     labels:
       - traefik.backend=traefik
       - traefik.port=7070
-      - traefik.frontend.rule=HostRegexp:192.168.0.149,*.in.ngrok.io
+      - traefik.frontend.rule=Host:192.168.0.149,HostRegexp:{subdomain:.*}.ngrok.io
     networks:
       - traefik-frontend
     restart: unless-stopped
