@@ -4,31 +4,35 @@ volumes:
   pihole_config:
   dnsmasq_config:
   dnscrypt_config:
+#  traefik_config: $PWD/traefik/
+#  docker_sock: /var/run/docker.sock
 networks:
-  traefik-frontend:
+  traefik-backend:
 services:
-  ngrok:
-    container_name: ngrok
-    image: phani8996/ngrok:latest
-    networks:
-      - traefik-frontend
-    labels:
-      - traefik.backend=ngrok
-      - traefik.port=4040
-      - traefik.frontend.rule=PathPrefix:/ngrok/;ReplacePathRegex:^/ngrok/(.*) /$$1
-    ports:
-      - "4040:4040/tcp"
-    restart: unless-stopped
+#  ngrok:
+#    container_name: ngrok
+#    image: phani8996/ngrok:latest
+#    networks:
+#      - traefik-backend
+#    labels:
+#      - traefik.backend=ngrok
+#      - traefik.port=4040
+#      - traefik.frontend.rule=PathPrefix:/ngrok/;ReplacePathRegex:^/ngrok/(.*) /$$1
+#    ports:
+#      - "4040:4040/tcp"
+#    restart: unless-stopped
   traefik:
     container_name: traefik
 #    image: traefik:1.7.2-alpine
     build: traefik/
 #    command:
 #      - --debug
-    volumes:
-      - "$PWD/traefik/traefik.toml:/traefik.toml"
-      - "$PWD/traefik/acme.json:/acme.json"
-      - "/var/run/docker.sock:/var/run/docker.sock"
+#    volumes:
+#       - traefik_config:/
+#       - docker_sock:/var/run/docker.sock
+#      - "$PWD/traefik/traefik.toml:/traefik.toml"
+#      - "$PWD/traefik/acme.json:/acme.json"
+#      - "/var/run/docker.sock:/var/run/docker.sock"
     ports:
       - "80:80/tcp"
       - "443:443/tcp"
@@ -36,8 +40,9 @@ services:
       - traefik.backend=traefik
       - traefik.port=7070
       - traefik.frontend.rule=Host:192.168.0.149,HostRegexp:{subdomain:.*}.ngrok.io
+      - io.balena.features.balena-socket=true
     networks:
-      - traefik-frontend
+      - traefik-backend
     restart: unless-stopped
   pihole:
     container_name: pihole
@@ -65,7 +70,7 @@ services:
       - traefik.frontend.rule=PathPrefix:/pihole/;ReplacePathRegex:^/pihole/(.*) /admin/$$1
       - traefik.port=80
     networks:
-      - traefik-frontend
+      - traefik-backend
     restart: unless-stopped
   dnscrypt-proxy:
     container_name: dnscrypt-proxy
@@ -77,7 +82,7 @@ services:
     labels:
       - traefik.enable=false
     networks:
-      - traefik-frontend
+      - traefik-backend
     restart: unless-stopped
   jupyter:
     container_name: jupyter
@@ -87,5 +92,5 @@ services:
       - traefik.frontend.rule=PathPrefix:/jupyter/
       - traefik.port=8888
     networks:
-      - traefik-frontend
+      - traefik-backend
     restart: unless-stopped
